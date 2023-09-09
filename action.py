@@ -31,7 +31,7 @@ class GiftAction(Action):
     cards: CardsSet
 
     def apply(self, state: State):
-        pass
+        state.pending_action = self
 
 
 @dataclass
@@ -42,6 +42,7 @@ class ChooseGiftAction(Action):
     def apply(self, state: State):
         state.cards[state.current_player].add(self.take_cards)
         state.cards[state.opponent].add(self.give_cards)
+        state.pending_action = None
 
 
 @dataclass
@@ -49,7 +50,7 @@ class CompetitionAction(Action):
     card_sets: List[CardsSet]
 
     def apply(self, state: State):
-        pass
+        state.pending_action = self
 
 
 @dataclass
@@ -60,3 +61,4 @@ class ChooseCompetitionAction(Action):
     def apply(self, state: State):
         state.cards[state.current_player].add(self.take_cards)
         state.cards[state.opponent].add(self.give_cards)
+        state.pending_action = None

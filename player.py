@@ -26,4 +26,5 @@ class CLIPlayer(Player):
                 if 0 <= action_index < len(possible_actions):
                     return action_index
             except ValueError:
-                print(f"Input value from 0 to {len(possible_actions)}")
+                pass
+            print(f"Input value from 0 to {len(possible_actions) - 1}")
