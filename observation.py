@@ -8,6 +8,7 @@ from cards_set import CardsSet
 @dataclass
 class Observation:
     geishas: List[Optional[int]]
+    geishas_cards: List[CardsSet]
     current_player: int
     cards: CardsSet
     deck: CardsSet

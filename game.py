@@ -14,18 +14,18 @@ class Game:
         self.players = players
         self.state = State()
 
-    def __str__(self):
-        result = ""
-        for i in range(len(self.state.cards)):
-            result += f"Player {i}: {self.state.cards[i]}\n"
-        return result
+    def __str__(self) -> str:
+        return str(self.state)
 
-    def is_finished(self):
-        self.state.is_finished()
+    def is_finished(self) -> bool:
+        return self.state.is_finished()
 
     def update(self):
         actions = self.get_available_actions()
-        self.players[self.state.current_player].choose_action(self.state.observation(), actions)
+        action_index = self.players[self.state.current_player].choose_action(self.state.observation(), actions)
+        action = actions[action_index]
+        action.apply(self.state)
+        self.state.current_player = 1 - self.state.current_player
 
     def get_available_actions(self) -> List[Action]:
         actions = []
@@ -39,8 +39,16 @@ class Game:
             if available_actions[2]:
                 actions.extend([GiftAction(s) for s in player_cards.select(3)])
             if available_actions[3]:
+                # TODO: optimization required
                 for cards in player_cards.select(4):
-                    actions.extend([CompetitionAction([s, cards.clone().remove(s)]) for s in cards.select(2)])
+                    pairs = set()
+                    for pair in cards.select(2):
+                        if pair in pairs:
+                            continue
+                        rest = cards.clone()
+                        rest.remove(pair)
+                        pairs.add(rest)
+                        actions.append(CompetitionAction([pair, rest]))
         elif isinstance(self.state.pending_action, GiftAction):
             cards = self.state.pending_action.cards
             actions.extend([ChooseGiftAction(s, cards.clone().remove(s)) for s in cards.select(1)])

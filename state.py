@@ -32,6 +32,7 @@ class Score:
 
 class State:
     geishas: List[Optional[int]]
+    geishas_cards: List[CardsSet]
     current_player: int
     cards: List[CardsSet]
     deck: CardsSet
@@ -46,6 +47,7 @@ class State:
 
     def __init__(self):
         self.geishas = [None] * len(GEISHAS_COUNT)
+        self.geishas_cards = [CardsSet(), CardsSet()]
         self.current_player = random.randint(0, 1)
 
         cards_indices = [0] * len(GEISHAS_COUNT) + [1] * len(GEISHAS_COUNT) + [-1] * (CARDS_COUNT - 2 * len(GEISHAS_COUNT))
@@ -62,6 +64,17 @@ class State:
         self.discarded = [CardsSet(), CardsSet()]
         self.actions = [[True] * 4, [True] * 4]
         self.pending_action = None
+
+    def __str__(self) -> str:
+        result = ""
+        for i in range(len(self.cards)):
+            result += f"Player {i}: {self.cards[i]}"
+            result += f" Geishas card {i}: {self.geishas_cards[i]}"
+            result += f" Hidden({self.hidden[i]})" if sum(self.hidden[i].cards) > 0 else ""
+            result += f" Discarded({self.discarded[i]})" if sum(self.discarded[i].cards) > 0 else ""
+            result += "\n"
+        result += f"Deck: {self.deck}"
+        return result
 
     def winner(self) -> Optional[int]:
         return self.score().winner()
@@ -83,6 +96,7 @@ class State:
     def observation(self) -> Observation:
         return Observation(
             self.geishas,
+            self.geishas_cards,
             self.current_player,
             self.cards[self.current_player],
             self.deck,

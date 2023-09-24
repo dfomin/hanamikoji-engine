@@ -8,6 +8,12 @@ class CardsSet:
     def __str__(self):
         return str([i for i, j in enumerate(self.cards) for _ in range(j)])
 
+    def __hash__(self):
+        return hash(str(self))
+
+    def __eq__(self, other: 'CardsSet'):
+        return isinstance(other, self.__class__) and self.cards == other.cards
+
     def add(self, other: 'CardsSet'):
         self.cards = [x + y for x, y in zip(self.cards, other.cards)]
 
