@@ -9,6 +9,7 @@ from observation import Observation
 GEISHAS_COUNT = [2, 2, 2, 3, 3, 4, 5]
 CARDS_COUNT = sum(GEISHAS_COUNT)
 CARDS_INDEX_MAP = [i for i, j in enumerate(GEISHAS_COUNT) for _ in range(j)]
+INITIAL_CARDS_COUNT = 6
 
 
 @dataclass
@@ -47,10 +48,28 @@ class State:
 
     def __init__(self):
         self.geishas = [None] * len(GEISHAS_COUNT)
-        self.geishas_cards = [CardsSet(), CardsSet()]
         self.current_player = random.randint(0, 1)
 
-        cards_indices = [0] * len(GEISHAS_COUNT) + [1] * len(GEISHAS_COUNT) + [-1] * (CARDS_COUNT - 2 * len(GEISHAS_COUNT))
+        self.new_round()
+
+    def __str__(self) -> str:
+        result = ""
+        for i in range(len(self.cards)):
+            result += f"Player {i}: {self.cards[i]}"
+            result += f" Geishas card {i}: {self.geishas_cards[i]}"
+            result += f" Hidden({self.hidden[i]})" if sum(self.hidden[i].cards) > 0 else ""
+            result += f" Discarded({self.discarded[i]})" if sum(self.discarded[i].cards) > 0 else ""
+            result += f" Actions({['+' if x else '-' for x in self.actions[i]]})"
+            result += "\n"
+        result += f"Deck: {self.deck}"
+        return result
+
+    def new_round(self):
+        self.geishas_cards = [CardsSet(), CardsSet()]
+
+        cards_indices = ([0] * (INITIAL_CARDS_COUNT + (1 if self.current_player == 0 else 0)) +
+                         [1] * (INITIAL_CARDS_COUNT + (1 if self.current_player == 1 else 0)) +
+                         [-1] * (CARDS_COUNT - 2 * INITIAL_CARDS_COUNT - 1))
         random.shuffle(cards_indices)
         self.cards = [CardsSet(), CardsSet()]
         self.deck = CardsSet()
@@ -65,29 +84,28 @@ class State:
         self.actions = [[True] * 4, [True] * 4]
         self.pending_action = None
 
-    def __str__(self) -> str:
-        result = ""
-        for i in range(len(self.cards)):
-            result += f"Player {i}: {self.cards[i]}"
-            result += f" Geishas card {i}: {self.geishas_cards[i]}"
-            result += f" Hidden({self.hidden[i]})" if sum(self.hidden[i].cards) > 0 else ""
-            result += f" Discarded({self.discarded[i]})" if sum(self.discarded[i].cards) > 0 else ""
-            result += "\n"
-        result += f"Deck: {self.deck}"
-        return result
+    def assign_geishas(self):
+        for i in range(len(GEISHAS_COUNT)):
+            if self.geishas_cards[0].cards[i] > self.geishas_cards[1].cards[i]:
+                self.geishas[i] = 0
+            elif self.geishas_cards[0].cards[i] < self.geishas_cards[1].cards[i]:
+                self.geishas[i] = 1
 
     def winner(self) -> Optional[int]:
         return self.score().winner()
 
     def is_finished(self) -> bool:
-        return self.winner() is not None
+        return self.is_round_finished() and self.winner() is not None
+
+    def is_round_finished(self) -> bool:
+        return self.pending_action is None and not any(self.actions[0]) and not any(self.actions[1])
 
     def score(self) -> Score:
         geishas_points = GEISHAS_COUNT
         score = Score([0, 0], [0, 0])
         for i in range(len(GEISHAS_COUNT)):
             for player_index in range(2):
-                if self.geishas[player_index] == player_index:
+                if self.geishas[i] == player_index:
                     score.points[player_index] += geishas_points[i]
                     score.geishas[player_index] += 1
 

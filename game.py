@@ -1,3 +1,4 @@
+import random
 from typing import List
 
 from action import Action, SecretAction, TradeOffAction, GiftAction, CompetitionAction, ChooseGiftAction, \
@@ -24,8 +25,23 @@ class Game:
         actions = self.get_available_actions()
         action_index = self.players[self.state.current_player].choose_action(self.state.observation(), actions)
         action = actions[action_index]
+        real_action = self.state.pending_action is None
         action.apply(self.state)
-        self.state.current_player = 1 - self.state.current_player
+        if real_action:
+            self.state.current_player = 1 - self.state.current_player
+            self.state.cards[self.state.current_player].add_card(self.state.deck.pop())
+
+        if self.state.is_round_finished():
+            self.state.assign_geishas()
+            print(self.state.geishas)
+            print(self.state.score())
+            if self.state.is_finished():
+                return
+
+            for i in range(2):
+                self.state.geishas_cards[i].add(self.state.hidden[i])
+            if not self.state.is_finished():
+                self.state.new_round()
 
     def get_available_actions(self) -> List[Action]:
         actions = []
@@ -51,11 +67,15 @@ class Game:
                         actions.append(CompetitionAction([pair, rest]))
         elif isinstance(self.state.pending_action, GiftAction):
             cards = self.state.pending_action.cards
-            actions.extend([ChooseGiftAction(s, cards.clone().remove(s)) for s in cards.select(1)])
+            for card in cards.select(1):
+                rest = cards.clone()
+                rest.remove(card)
+                actions.append(ChooseGiftAction(card, rest))
         elif isinstance(self.state.pending_action, CompetitionAction):
             actions.append(ChooseCompetitionAction(take_cards=self.state.pending_action.card_sets[0],
                                                    give_cards=self.state.pending_action.card_sets[1]))
-            actions.append(ChooseCompetitionAction(take_cards=self.state.pending_action.card_sets[1],
-                                                   give_cards=self.state.pending_action.card_sets[0]))
+            if self.state.pending_action.card_sets[0] != self.state.pending_action.card_sets[1]:
+                actions.append(ChooseCompetitionAction(take_cards=self.state.pending_action.card_sets[1],
+                                                       give_cards=self.state.pending_action.card_sets[0]))
 
         return actions

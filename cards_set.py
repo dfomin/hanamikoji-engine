@@ -1,3 +1,4 @@
+import random
 from typing import List
 
 
@@ -23,15 +24,20 @@ class CardsSet:
     def add_card(self, card: int):
         self.cards[card] += 1
 
-    def select(self, n: int) -> List['CardsSet']:
-        result = []
-        self._backtrack(result, CardsSet(), 0, n)
-        return result
-
     def clone(self) -> 'CardsSet':
         new_cards_set = CardsSet()
         new_cards_set.add(self)
         return new_cards_set
+
+    def pop(self) -> int:
+        card = random.choices(range(7), weights=self.cards)[0]
+        self.cards[card] -= 1
+        return card
+
+    def select(self, n: int) -> List['CardsSet']:
+        result = []
+        self._backtrack(result, CardsSet(), 0, n)
+        return result
 
     def _backtrack(self, result: List['CardsSet'], current: 'CardsSet', start: int, total: int):
         if total == 0:

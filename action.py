@@ -19,6 +19,8 @@ class SecretAction(Action):
 
     def apply(self, state: State):
         state.hidden[state.current_player] = self.cards
+        state.cards[state.current_player].remove(self.cards)
+        state.actions[state.current_player][0] = False
 
 
 @dataclass
@@ -30,6 +32,8 @@ class TradeOffAction(Action):
 
     def apply(self, state: State):
         state.discarded[state.current_player] = self.cards
+        state.cards[state.current_player].remove(self.cards)
+        state.actions[state.current_player][1] = False
 
 
 @dataclass
@@ -41,6 +45,8 @@ class GiftAction(Action):
 
     def apply(self, state: State):
         state.pending_action = self
+        state.cards[state.current_player].remove(self.cards)
+        state.actions[state.current_player][2] = False
 
 
 @dataclass
@@ -69,6 +75,9 @@ class CompetitionAction(Action):
 
     def apply(self, state: State):
         state.pending_action = self
+        state.cards[state.current_player].remove(self.card_sets[0])
+        state.cards[state.current_player].remove(self.card_sets[1])
+        state.actions[state.current_player][3] = False
 
 
 @dataclass
