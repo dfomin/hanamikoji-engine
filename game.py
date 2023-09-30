@@ -27,21 +27,27 @@ class Game:
         action = actions[action_index]
         real_action = self.state.pending_action is None
         action.apply(self.state)
+
         if real_action:
             self.state.current_player = 1 - self.state.current_player
-            self.state.cards[self.state.current_player].add_card(self.state.deck.pop())
 
         if self.state.is_round_finished():
+            for i in range(2):
+                self.state.geishas_cards[i].add(self.state.hidden[i])
             self.state.assign_geishas()
+
             print(self.state.geishas)
             print(self.state.score())
+
             if self.state.is_finished():
                 return
 
-            for i in range(2):
-                self.state.geishas_cards[i].add(self.state.hidden[i])
+            self.state.current_player = 1 - self.state.current_player
+
             if not self.state.is_finished():
                 self.state.new_round()
+        elif self.state.pending_action is None:
+            self.state.cards[self.state.current_player].add_card(self.state.deck.pop())
 
     def get_available_actions(self) -> List[Action]:
         actions = []
