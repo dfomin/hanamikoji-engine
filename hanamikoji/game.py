@@ -20,9 +20,6 @@ class Game:
                 state.geishas_cards[i].add(state.hidden[i])
             state.assign_geishas()
 
-            print(state.geishas)
-            print(state.score())
-
             if state.is_finished():
                 return
 
