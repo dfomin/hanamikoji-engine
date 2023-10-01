@@ -7,11 +7,9 @@ from .state import State
 
 
 class Game:
-    players: List[Player]
     state: State
 
-    def __init__(self, players: List[Player]):
-        self.players = players
+    def __init__(self):
         self.state = State()
 
     def __str__(self) -> str:
@@ -20,10 +18,7 @@ class Game:
     def is_finished(self) -> bool:
         return self.state.is_finished()
 
-    def update(self):
-        actions = self.get_available_actions()
-        action_index = self.players[self.state.current_player].choose_action(self.state.observation(), actions)
-        action = actions[action_index]
+    def apply_action(self, action: Action):
         real_action = self.state.pending_action is None
         action.apply(self.state)
 
