@@ -18,5 +18,5 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/dfomin/hanamikoji-engine/"
+"Homepage" = "https://github.com/dfomin/hanamikoji-engine"
 "Bug Tracker" = "https://github.com/dfomin/hanamikoji-engine/issues"
