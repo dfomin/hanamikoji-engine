@@ -7,47 +7,38 @@ from .state import State
 
 
 class Game:
-    state: State
-
-    def __init__(self):
-        self.state = State()
-
-    def __str__(self) -> str:
-        return str(self.state)
-
-    def is_finished(self) -> bool:
-        return self.state.is_finished()
-
-    def apply_action(self, action: Action):
-        real_action = self.state.pending_action is None
-        action.apply(self.state)
+    @staticmethod
+    def apply_action(state: State, action: Action):
+        real_action = state.pending_action is None
+        action.apply(state)
 
         if real_action:
-            self.state.current_player = 1 - self.state.current_player
+            state.current_player = 1 - state.current_player
 
-        if self.state.is_round_finished():
+        if state.is_round_finished():
             for i in range(2):
-                self.state.geishas_cards[i].add(self.state.hidden[i])
-            self.state.assign_geishas()
+                state.geishas_cards[i].add(state.hidden[i])
+            state.assign_geishas()
 
-            print(self.state.geishas)
-            print(self.state.score())
+            print(state.geishas)
+            print(state.score())
 
-            if self.state.is_finished():
+            if state.is_finished():
                 return
 
-            self.state.current_player = 1 - self.state.current_player
+            state.current_player = 1 - state.current_player
 
-            if not self.state.is_finished():
-                self.state.new_round()
-        elif self.state.pending_action is None:
-            self.state.cards[self.state.current_player].add_card(self.state.deck.pop())
+            if not state.is_finished():
+                state.new_round()
+        elif state.pending_action is None:
+            state.cards[state.current_player].add_card(state.deck.pop())
 
-    def get_available_actions(self) -> List[Action]:
+    @staticmethod
+    def get_available_actions(state: State) -> List[Action]:
         actions = []
-        player_cards = self.state.cards[self.state.current_player]
-        if self.state.pending_action is None:
-            available_actions = self.state.actions[self.state.current_player]
+        player_cards = state.cards[state.current_player]
+        if state.pending_action is None:
+            available_actions = state.actions[state.current_player]
             if available_actions[0]:
                 actions.extend([SecretAction(s) for s in player_cards.select(1)])
             if available_actions[1]:
@@ -65,17 +56,17 @@ class Game:
                         rest.remove(pair)
                         pairs.add(rest)
                         actions.append(CompetitionAction([pair, rest]))
-        elif isinstance(self.state.pending_action, GiftAction):
-            cards = self.state.pending_action.cards
+        elif isinstance(state.pending_action, GiftAction):
+            cards = state.pending_action.cards
             for card in cards.select(1):
                 rest = cards.clone()
                 rest.remove(card)
                 actions.append(ChooseGiftAction(card, rest))
-        elif isinstance(self.state.pending_action, CompetitionAction):
-            actions.append(ChooseCompetitionAction(take_cards=self.state.pending_action.card_sets[0],
-                                                   give_cards=self.state.pending_action.card_sets[1]))
-            if self.state.pending_action.card_sets[0] != self.state.pending_action.card_sets[1]:
-                actions.append(ChooseCompetitionAction(take_cards=self.state.pending_action.card_sets[1],
-                                                       give_cards=self.state.pending_action.card_sets[0]))
+        elif isinstance(state.pending_action, CompetitionAction):
+            actions.append(ChooseCompetitionAction(take_cards=state.pending_action.card_sets[0],
+                                                   give_cards=state.pending_action.card_sets[1]))
+            if state.pending_action.card_sets[0] != state.pending_action.card_sets[1]:
+                actions.append(ChooseCompetitionAction(take_cards=state.pending_action.card_sets[1],
+                                                       give_cards=state.pending_action.card_sets[0]))
 
         return actions

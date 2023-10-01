@@ -1,16 +1,17 @@
 from hanamikoji.game import Game
 from hanamikoji.player import CLIPlayer
+from hanamikoji.state import State
 
 
 def main():
-    game = Game()
+    state = State()
     players = [CLIPlayer(0), CLIPlayer(1)]
-    while not game.is_finished():
-        print(game)
-        actions = game.get_available_actions()
-        action_index = players[game.state.current_player].choose_action(game.state.observation(), actions)
+    while not state.is_finished():
+        print(state)
+        actions = Game.get_available_actions(state)
+        action_index = players[state.current_player].choose_action(state.observation(), actions)
         action = actions[action_index]
-        game.apply_action(action)
+        Game.apply_action(state, action)
 
 
 if __name__ == "__main__":
