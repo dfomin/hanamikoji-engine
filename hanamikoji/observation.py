@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Optional, Any
 
-# from action import Action
-from cards_set import CardsSet
+from .cards_set import CardsSet
 
 
 @dataclass

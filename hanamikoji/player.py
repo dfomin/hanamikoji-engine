@@ -1,7 +1,8 @@
+import random
 from typing import List, Protocol
 
-from action import Action
-from observation import Observation
+from .action import Action
+from .observation import Observation
 
 
 class Player(Protocol):
@@ -28,3 +29,10 @@ class CLIPlayer(Player):
             except ValueError:
                 pass
             print(f"Input value from 0 to {len(possible_actions) - 1}")
+
+
+class RandomPlayer(Player):
+    index: int
+
+    def choose_action(self, observation: Observation, possible_actions: List[Action]) -> int:
+        return random.randint(0, len(possible_actions) - 1)

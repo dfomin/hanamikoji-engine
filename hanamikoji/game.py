@@ -1,10 +1,9 @@
-import random
 from typing import List
 
-from action import Action, SecretAction, TradeOffAction, GiftAction, CompetitionAction, ChooseGiftAction, \
+from .action import Action, SecretAction, TradeOffAction, GiftAction, CompetitionAction, ChooseGiftAction, \
     ChooseCompetitionAction
-from player import Player
-from state import State
+from .player import Player
+from .state import State
 
 
 class Game:

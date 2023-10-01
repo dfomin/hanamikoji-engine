@@ -1,4 +1,4 @@
-from cli_game import CLIGame
+from .cli_game import CLIGame
 
 
 def main():

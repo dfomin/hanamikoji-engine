@@ -1,5 +1,5 @@
-from game import Game
-from player import CLIPlayer
+from .game import Game
+from .player import CLIPlayer
 
 
 class CLIGame:

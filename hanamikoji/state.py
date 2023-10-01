@@ -2,9 +2,8 @@ import random
 from dataclasses import dataclass
 from typing import List, Optional, Any
 
-# from action import Action
-from cards_set import CardsSet
-from observation import Observation
+from .cards_set import CardsSet
+from .observation import Observation
 
 GEISHAS_COUNT = [2, 2, 2, 3, 3, 4, 5]
 CARDS_COUNT = sum(GEISHAS_COUNT)

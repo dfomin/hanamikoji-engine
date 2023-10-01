@@ -1,0 +1,1 @@
+This package simulates a board game Hanamikoji.

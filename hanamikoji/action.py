@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Protocol, List
 
-from cards_set import CardsSet
-from state import State
+from .cards_set import CardsSet
+from .state import State
 
 
 class Action(Protocol):
